@@ -160,7 +160,7 @@ function calculateTwoMax(array $array): ?array
     return [$firstMax, $secondMax];
 }
 
-function &swapMaxMinInMatrix(array &$matrix): void
+function &swapMaxMinInMatrix(array &$matrix): array
 {
     foreach ($matrix as &$row) {
         if (count($row) < 2)
@@ -172,6 +172,151 @@ function &swapMaxMinInMatrix(array &$matrix): void
         $temp = $row[$maxIndex];
         $row[$maxIndex] = $row[$minIndex];
         $row[$minIndex] = $temp;
+    }
+    return $matrix;
+}
+
+function calculateSumMatrix(array $array): array
+{
+    $result = array();
+
+    foreach ($array as $row) {
+        $sum = 0;
+        foreach ($row as $num) {
+            $sum += $num;
+        }
+        if ($sum === 0)
+            continue;
+        $result[] = $sum;
+    }
+
+    return $result;
+}
+
+function calculateProductMatrix(array $array): array
+{
+    $result = array();
+
+    foreach ($array as $row) {
+        if (count($row) < 1)
+            continue;
+        if (count($row) === 1) {
+            $result[] = $row[0];
+            continue;
+        }
+        $product = 1;
+        foreach ($row as $num) {
+            $product *= $num;
+        }
+        $result[] = $product;
+    }
+
+    return $result;
+}
+
+function binomialCoefficient(int $m, int $n): int
+{
+    if (($m == 0 && $n > 0) || ($m == $n && $n >= 0)) {
+        return 1;
+    }
+    if ($m > $n && $n >= 0) {
+        return 0;
+    }
+
+    return binomialCoefficient($m - 1, $n - 1) + binomialCoefficient($m, $n - 1);
+}
+
+function calculateBinomialCoefficients(int $M): array
+{
+    $coefficients = [];
+
+    for ($i = 1; $i <= $M; $i++) {
+        for ($j = 1; $j <= $i; $j++) {
+            $coefficients[$i][$j] = binomialCoefficient($j, $i);
+        }
+    }
+
+    return $coefficients;
+}
+
+function findCommonValues($arrays): array
+{
+    if (empty($arrays) || count($arrays) < 2)
+        return [];
+
+    $arrays = array_filter($arrays, function($element) {
+        return is_array($element);
+    });
+
+    $commonValues = array_shift($arrays);
+
+    foreach ($arrays as $array)
+        $commonValues = array_intersect($commonValues, $array);
+
+    return $commonValues;
+}
+
+function findMaxNumber($array): ?int
+{
+    if (empty($array))
+        return null;
+    return max($array);
+}
+
+function findLongestString($array): ?string
+{
+    if (empty($array))
+        return null;
+
+    $longestString = "";
+    foreach ($array as $string) {
+        if (strlen($string) > strlen($longestString))
+            $longestString = $string;
+    }
+
+    return $longestString;
+}
+
+function findMaxValue($array)
+{
+    if (empty($array))
+        return null;
+
+    $isNumericArray = array_reduce($array, function($carry, $item) {
+        return $carry && is_numeric($item);
+    }, true);
+
+    return $isNumericArray ? findMaxNumber($array) : findLongestString($array);
+}
+
+function sortMatrixByIndexSum(array &$matrix = []): void
+{
+    if (empty($matrix))
+        return;
+
+    $flattenedArray = [];
+    foreach ($matrix as $rowIndex => $row) {
+        foreach ($row as $colIndex => $value) {
+            $indexSum = $rowIndex + $colIndex;
+            $flattenedArray[] = ['value' => $value, 'indexSum' => $indexSum];
+        }
+    }
+
+    usort($flattenedArray, function ($a, $b) {
+        if ($a['indexSum'] === $b['indexSum'])
+            return $a['value'] <=> $b['value'];
+        return $a['indexSum'] <=> $b['indexSum'];
+    });
+
+    $index = 0;
+    $rows = count($matrix);
+    $cols = count($matrix[0]);
+
+    for ($i = 0; $i < $rows; $i++) {
+        for ($j = 0; $j < $cols; $j++) {
+            $matrix[$i][$j] = $flattenedArray[$index]['value'];
+            $index++;
+        }
     }
 }
 
@@ -212,5 +357,17 @@ function outputResultMatrix(array $matrix, string $successMessage, string $notFo
         echo "<h3>$notFoundMessage</h3>";
 }
 
-?>
+function outputResultBinomialCoefficients(int $m, int $numberOfTask, array $result)
+{
+    echo "<h1>Номер завдання: $numberOfTask</h1>";
+    echo "<h2>Біноміальні коефіцієнти для M = $m.</h2>";
 
+    if ($m <= 0) {
+        echo "<h2>Значення для M має бути більше ніж 0!</h2>";
+        return;
+    }
+
+    echo "<h2>Обчислені біноміальні коефіцієнти:</h2>";
+    print_r($result);
+}
+?>
